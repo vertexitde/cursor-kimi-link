@@ -23,7 +23,7 @@ There is nothing to configure in Cursor: the Kimi Code CLI uses your Kimi sign-i
 
 ### In Cursor's agent harness
 
-- **Tools**: Cursor's tools are offered to the model, and the model's tool calls come back to Cursor, which runs them under its own approvals. Every Kimi session runs in Kimi's Plan mode ("read-only planning; no tool execution") in an empty private folder, and the bridge refuses every permission request Kimi might send.
+- **Tools**: Cursor's tools are offered to the model, and the model's tool calls come back to Cursor, which runs them under its own approvals. Every Kimi session runs in Kimi's Default mode, where its own tools need an approval, in an empty private folder, and the bridge refuses every permission request Kimi might send. (Plan mode did the same job, but the models then refused Cursor's edits "because Plan mode is active".)
 - **Images**: pasted images go to Kimi as ACP image blocks.
 - **Subagents, queued follow-ups, Plan to Build, Max mode and context** use the same handling as the companion patches.
 
@@ -84,7 +84,7 @@ Then remove the stale `installed.json` and reinstall in order: ChatGPT, Claude, 
 ## How it works
 
 - A local bridge listens on `127.0.0.1:43191` and starts with Cursor. It requires a random per-installation key and speaks OpenAI chat completions to Cursor's local agent runtime.
-- For every request the bridge starts `kimi acp` in a new empty folder, opens a session, sets Plan mode, the model and the thinking level, and sends one prompt: the agent instructions, the conversation and Cursor's tool definitions as JSON, plus any images.
+- For every request the bridge starts `kimi acp` in a new empty folder, opens a session, sets Default mode, the model and the thinking level, and sends one prompt: the agent instructions, the conversation and Cursor's tool definitions as JSON, plus any images.
 - Kimi's reply is read from the streamed message chunks, parsed as `{text, tool_calls}`, checked against the tools Cursor offered and returned in OpenAI form, streamed or not. The session is deleted afterwards.
 - In the workbench, the patch adds the models, routes them through the local runtime, and joins the shared picker, queue, stop and subagent handling that the companion patches install.
 

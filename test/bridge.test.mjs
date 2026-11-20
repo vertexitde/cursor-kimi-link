@@ -95,7 +95,7 @@ test('infer drives one Plan-mode session, refuses permissions and cleans up', as
   assert.deepEqual(out.answer, answer);
   const [call] = seen;
   assert.deepEqual(call.args, ['acp']);
-  assert.deepEqual(call.methods, ['initialize', 'session/new', 'session/set_config_option:mode=plan', 'session/set_config_option:model=kimi-code/k3.1-pro',
+  assert.deepEqual(call.methods, ['initialize', 'session/new', 'session/set_config_option:mode=default', 'session/set_config_option:model=kimi-code/k3.1-pro',
     'session/set_config_option:thinking=low', 'session/prompt', 'session/delete']);
   assert.deepEqual(call.permissionAnswer, {outcome:{outcome:'cancelled'}});
   assert.equal(call.prompts[0][0].type, 'text');
