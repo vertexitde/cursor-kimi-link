@@ -16,6 +16,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {spawn} from 'node:child_process';
+import {textStreamer} from './stream-text.mjs';
 import {prefix, findModel, thinkingFor, catalogFrom, defaultEffortsFromConfig} from './models.mjs';
 
 export class KimiError extends Error {
@@ -70,7 +71,7 @@ export class AcpClient {
         const {resolve, reject} = this.pending.get(message.id); this.pending.delete(message.id);
         if (message.error) reject(new KimiError(502, 'Kimi: ' + (message.error.message ?? JSON.stringify(message.error)), 'kimi_rpc_error'));
         else resolve(message.result);
-      } else if (message.method === 'session/update') this.updates.push(message.params?.update);
+      } else if (message.method === 'session/update') { this.updates.push(message.params?.update); this.onUpdate?.(message.params?.update); }
     }
   }
   send(message) { this.child.stdin.write(JSON.stringify(message) + '\n'); }
@@ -236,10 +237,16 @@ async function turn(client, sessionId, prompt) {
   return {text, thought, stopReason:result?.stopReason};
 }
 
-export async function infer(kimi, body, catalog, {signal, spawnProcess} = {}) {
+export async function infer(kimi, body, catalog, {signal, spawnProcess, onProgress} = {}) {
   const request = prepareRequest(body, catalog);
   const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'cursor-kimi-'));
   const client = new AcpClient(kimi, workspace, {spawnProcess});
+  // Thinking and the reply stream to Cursor while Kimi writes them.
+  const streamer = onProgress && textStreamer(delta => onProgress({kind:'text', delta}));
+  if (onProgress) client.onUpdate = update => {
+    if (update?.sessionUpdate === 'agent_thought_chunk') onProgress({kind:'reasoning', delta:update.content?.text ?? ''});
+    if (update?.sessionUpdate === 'agent_message_chunk') streamer.push(update.content?.text ?? '');
+  };
   let sessionId;
   const stop = () => { if (sessionId) client.notify('session/cancel', {sessionId}); client.close(); };
   signal?.addEventListener('abort', stop, {once:true});
@@ -255,6 +262,7 @@ export async function infer(kimi, body, catalog, {signal, spawnProcess} = {}) {
     try { answer = validateAnswer(answer, request); } catch (error) { problem = error; }
     if (problem && !signal?.aborted) {
       // One correction round in the same session.
+      streamer?.restart();
       reply = await turn(client, sessionId, [{type:'text', text:'Your last reply did not follow the required format (' + problem.message + '). Reply again with exactly one JSON object {"text": string, "tool_calls": [{"name": string, "arguments": string}]} and nothing else.'}]);
       usageText += reply.text; thought += reply.thought;
       answer = validateAnswer(extractAnswer(reply.text), request);

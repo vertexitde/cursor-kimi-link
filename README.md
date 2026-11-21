@@ -29,7 +29,7 @@ There is nothing to configure in Cursor: the Kimi Code CLI uses your Kimi sign-i
 
 ### Limits
 
-- Each turn is one Kimi session. Answers arrive in one piece, not token by token.
+- Each turn is one Kimi session. Thinking and the reply stream while Kimi writes them: the reply is read out of its JSON answer as it arrives; tool calls follow once the answer is complete.
 - ACP has no option to force a JSON answer. Kimi is instructed to answer with `{text, tool_calls}`; the bridge checks every answer strictly against the tools Cursor offered and asks once more when it does not parse.
 - ACP reports no token counts. The bridge estimates them from the text length, so context usage in Cursor is approximate.
 - The Highspeed variants count more against your Kimi Code quota, and Max thinking takes longest.
