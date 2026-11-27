@@ -7,7 +7,7 @@ Updated on November 20, 2026.
 | Component | Version |
 | --- | --- |
 | Operating system | Windows 11, x64 |
-| Cursor | 3.32.7, commit `c83fdd301426f2280908a553e0782475a1db4af0` (also reviewed: 3.32.5, 3.32.4, 3.32.1, 3.31.17, 3.31.12, 3.25.9 and 3.24.12) |
+| Cursor | 3.32.11, commit `79af92cc6796bb44603d7c96f7c88e4f3edafcb0` (also reviewed: 3.32.7, 3.32.5, 3.32.4, 3.32.1, 3.31.17, 3.31.12, 3.25.9 and 3.24.12) |
 | Kimi Code CLI | 2.7.0, kimi.ai account, Kimi Code membership |
 | Node.js | 26.12.1 |
 | Companion patches | cursor-gpt-link, cursor-claude-link, cursor-mercury-link and cursor-gemini-link for the same build |
@@ -41,6 +41,7 @@ Updated on November 20, 2026.
 
 | Build | Standalone | Combined with the four companions |
 | --- | --- | --- |
+| 3.32.11 | Passes | Passes |
 | 3.32.7 | Passes | Passes |
 | 3.32.5 | Passes | Passes |
 | 3.32.4 | Passes | Passes |
